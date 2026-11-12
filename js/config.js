@@ -55,6 +55,11 @@ window.PP_CONFIG = {
     message: "Hi Power Pickkle! I'd like to order the Power Combo (Buy 1 Get 1 Free – 2 × 35g). Please share delivery charges and payment details."
   },
 
+  // Decorative effects
+  effects: {
+    jellyfish: true // swimming jellyfish that gently follows the cursor
+  },
+
   contact: {
     email: "",  // TODO: add support email
     phone: "",  // TODO: add phone (display format)

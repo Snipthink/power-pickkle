@@ -472,3 +472,9 @@ button { font: inherit; cursor: pointer; }
 /* carousel slides per view (kept in sync with perView() in main.js) */
 @media (max-width: 999px) { .rev { flex-basis: calc((100% - 22px) / 2); } }
 @media (max-width: 679px) { .rev { flex-basis: 100%; } }
+
+/* swimming jellyfish (js/jellyfish.js) */
+.jelly { position: fixed; left: 0; top: 0; width: 120px; height: 230px; transform-origin: 60px 34px; pointer-events: none; z-index: 45; will-change: transform; filter: drop-shadow(0 6px 14px rgba(240, 138, 28, .35)) drop-shadow(0 0 10px rgba(247, 215, 116, .45)); }
+.jelly svg { display: block; overflow: visible; }
+body.menu-open .jelly { opacity: 0; transition: opacity .2s; }
+@media print { .jelly { display: none; } }

@@ -8,7 +8,7 @@ nutrition (per 100 g — per 35 g is calculated), ingredients, allergens, manufa
 
 ## Before launch — must do
 - [x] Nutrition verified against the FAIR Lab test report (zinc removed — not in report).
-- [ ] Verify ingredients, FSSAI no. and address against the final label, then set `verified: true` (removes the on-page "pending" notes).
+- [ ] Verify FSSAI no. and address against the final label (the ingredients section was removed from the page; the lid sticker art still lists them), then set `verified: true` (removes the on-page "pending" notes).
 - [ ] Confirm shelf-life & storage wording (`product.shelfLife`) matches the validated label.
 - [ ] Set `order.checkoutUrl` to the exact Blinkit product link (currently a Blinkit search for "power pickkle"). Optional: `order.whatsappNumber` shows a footer help button.
 - [ ] Make sure the ₹99 Buy 1 Get 1 offer matches what Blinkit actually shows (`offer` in config).

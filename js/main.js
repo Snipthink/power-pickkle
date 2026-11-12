@@ -167,10 +167,6 @@
   $("#nutNote").textContent = C.nutrition.note;
   renderNut();
 
-  /* ---------- 7. Ingredients ---------- */
-  $("#ingList").innerHTML = C.ingredients.list.map(function (i) {
-    return '<li' + (/confirm/i.test(i) ? ' class="tbc"' : "") + '>' + i + "</li>";
-  }).join("");
 
   /* ---------- 8. Pairing gallery lightbox ---------- */
   var pairs = {
