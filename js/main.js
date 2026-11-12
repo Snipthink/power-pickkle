@@ -73,6 +73,11 @@
     if (help) { a.hidden = true; return; }
     a.addEventListener("click", function (e) { e.preventDefault(); showToast("Ordering link coming soon."); });
   });
+  if (C.contact.instagram) {
+    var handle = "@" + C.contact.instagram.replace(/\/+$/, "").split("/").pop();
+    $$("[data-insta]").forEach(function (a) { a.href = C.contact.instagram; a.hidden = false; });
+    $$("[data-insta-handle]").forEach(function (b) { b.textContent = handle; });
+  }
   if (C.contact.email) {
     var ml = $("#mailLink"); ml.hidden = false; ml.href = "mailto:" + C.contact.email; $("span", ml).textContent = C.contact.email;
   }
@@ -99,7 +104,7 @@
   });
 
   var sticky = $("#stickyOrder"), hero = $(".hero"), offerSec = $("#order"), finalSec = $(".final");
-  var navLinks = $$(".nav a:not(.nav-cta)");
+  var navLinks = $$('.nav a[href^="#"]:not(.nav-cta)');   // in-page links only (not Instagram)
   var sections = navLinks.map(function (a) { return $(a.getAttribute("href")); });
   function onScroll() {
     var y = window.scrollY;

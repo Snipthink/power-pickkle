@@ -1,9 +1,12 @@
 /* ==========================================================================
    Power Pickkle — swimming jellyfish
-   • Moves in natural pulses (bell contracts → thrust → glides through "water").
-   • When the visitor moves the cursor (or finger), it swims gently after it,
-     keeping a polite distance — it never sits on top of the pointer.
-   • When the cursor stops, it swims back to its resting spot and bobs there.
+   Behaves like a real jellyfish in the sea:
+   • Stays upright. Each bell contraction pushes it gently upward; between
+     pulses it sinks slowly and drifts sideways with the "current".
+   • Moving the cursor (or a finger) wakes it up: it starts wandering around
+     its own area of the screen — it does NOT chase the cursor.
+   • It keeps its distance: if the cursor comes near, it drifts away.
+   • When the cursor stops, it floats back to its resting spot and hovers there.
    • Purely decorative: pointer-events none, aria-hidden, honours reduced motion.
    Turn off with PP_CONFIG.effects.jellyfish = false.
    ========================================================================== */
@@ -14,11 +17,12 @@
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- tuning ---------- */
-  var IDLE_MS = 2200;        // no cursor movement for this long → go home
-  var FOLLOW_GAP = 90;       // stays this far (px) from the cursor
-  var THRUST = 2200;         // push during each bell contraction (px/s²)
-  var DRAG = 1.4;            // water resistance (higher = stops sooner)
-  var MAX_SPEED = 420;       // px/s
+  var IDLE_MS = 3000;        // no cursor movement for this long → float home
+  var KEEP_AWAY = 300;       // px it keeps between itself and the cursor
+  var THRUST = 520;          // upward push during each bell contraction (px/s²)
+  var SINK = 24;             // slow sinking between pulses (px/s²)
+  var DRAG = 1.1;            // water resistance
+  var MAX_SPEED = 150;       // px/s — unhurried, ocean-like
   var N_TENT = 6, N_ARM = 3, SEG = 9;
 
   /* ---------- build SVG ---------- */
@@ -114,48 +118,78 @@
   }
 
   /* ---------- animation loop ---------- */
+  var wander = { x: 0, y: 0 }, nextPick = 0;
+  function clampX(x) { return Math.max(70, Math.min(W - 70, x)); }
+  function clampY(y) { return Math.max(130, Math.min(H - 110, y)); }
+
+  // choose a new spot to drift to, inside its own area and away from the cursor
+  function pickWander(now) {
+    var rx = W < 640 ? W * 0.35 : Math.min(420, W * 0.3), ry = Math.min(260, H * 0.32);
+    for (var tries = 0; tries < 8; tries++) {
+      var x = clampX(home.x - Math.random() * rx * 1.4 + rx * 0.2);
+      var y = clampY(home.y - Math.random() * ry * 1.2 + ry * 0.2);
+      if (!cursor || Math.hypot(x - cursor.x, y - cursor.y) > KEEP_AWAY) { wander.x = x; wander.y = y; break; }
+    }
+    nextPick = now + 2600 + Math.random() * 2400;
+  }
+
   var last = performance.now();
   function frame(now) {
     var dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-    var following = cursor && now - lastMove < IDLE_MS;
+    var awake = cursor && now - lastMove < IDLE_MS;
 
-    // target: near (not on) the cursor while it moves, else the resting spot
-    var tx = home.x, ty = home.y;
-    if (following) {
-      var ax = pos.x - cursor.x, ay = pos.y - cursor.y, ad = Math.hypot(ax, ay) || 1;
-      tx = cursor.x + ax / ad * FOLLOW_GAP; ty = cursor.y + ay / ad * FOLLOW_GAP + 20;
+    // where it would like to be: wandering while the visitor is active, home otherwise
+    var tx = home.x, ty = home.y, away = 0, axn = 0, ayn = 0;
+    if (awake) {
+      if (now > nextPick || Math.hypot(wander.x - pos.x, wander.y - pos.y) < 30) pickWander(now);
+      tx = wander.x; ty = wander.y;
+    }
+    if (cursor && now - lastMove < IDLE_MS) {
+      var cx = pos.x - cursor.x, cy = pos.y - cursor.y, cd = Math.hypot(cx, cy) || 1;
+      if (cd < KEEP_AWAY) {
+        away = 1 - cd / KEEP_AWAY; axn = cx / cd; ayn = cy / cd;
+        if (Math.hypot(tx - cursor.x, ty - cursor.y) < KEEP_AWAY) {   // re-route away from the cursor
+          tx = clampX(pos.x + axn * 240); ty = clampY(pos.y + ayn * 200); wander.x = tx; wander.y = ty;
+        }
+      }
     }
     var dx = tx - pos.x, dy = ty - pos.y, dist = Math.hypot(dx, dy);
 
-    // bell rhythm: quicker pulses when it has somewhere to go, lazy pulses at rest
-    var urge = Math.min(1, dist / 220);
-    phase += dt * (0.55 + urge * 1.25);
+    // bell rhythm: lazy at rest, a little livelier when awake or travelling
+    var urge = Math.min(1, dist / 200);
+    phase += dt * (0.5 + (awake ? 0.25 : 0) + urge * 0.35 + away * 0.4);
     var cyc = phase % 1;
-    var pulse = cyc < 0.28 ? Math.sin(cyc / 0.28 * Math.PI) : 0;   // 0→1→0 contraction
+    var pulse = cyc < 0.3 ? Math.sin(cyc / 0.3 * Math.PI) : 0;    // 0→1→0 contraction
 
     if (!reduce) {
-      if (dist > 6 && cyc < 0.28) {
-        var push = THRUST * urge * pulse;
-        vel.x += dx / dist * push * dt; vel.y += dy / dist * push * dt;
+      if (cyc < 0.3) {
+        // a jellyfish pushes *up* with each pulse, steering only slightly sideways
+        // depth control: ~0.24 balances sinking; more if it is below its spot or
+        // already sinking, less (down to 0 — just drift down) if above it.
+        var ux = Math.max(-0.85, Math.min(0.85, dx / 120)), uy = -1;
+        var strength = Math.max(0, Math.min(1.1, 0.18 - dy / 260 + vel.y / 220)) + Math.min(0.45, Math.abs(dx) / 420) + away * 0.6;
+        var ul = Math.hypot(ux, uy) || 1;
+        vel.x += (ux / ul) * THRUST * strength * pulse * dt;
+        vel.y += (uy / ul) * THRUST * strength * pulse * dt;
       }
-      // gentle idle bob around the resting spot
-      if (!following && dist < 30) vel.y += Math.sin(t * 1.4) * 14 * dt;
+      vel.y += SINK * dt;                                   // sinks gently between pulses
+      vel.x += Math.sin(t * 0.35 + 1.3) * 5 * dt;            // faint ocean current
+      if (away) { vel.x += axn * 150 * away * dt; vel.y += ayn * 70 * away * dt; }
       var drag = Math.exp(-DRAG * dt); vel.x *= drag; vel.y *= drag;
       var sp = Math.hypot(vel.x, vel.y);
       if (sp > MAX_SPEED) { vel.x *= MAX_SPEED / sp; vel.y *= MAX_SPEED / sp; }
       pos.x += vel.x * dt; pos.y += vel.y * dt;
+      // soft edges of the "tank"
+      if (pos.x < 60) vel.x += 40 * dt; if (pos.x > W - 60) vel.x -= 40 * dt;
+      if (pos.y < 110) vel.y += 50 * dt; if (pos.y > H - 90) vel.y -= 60 * dt;
     }
 
-    // body tilts toward its swimming direction, settles upright when slow
-    var speed = Math.hypot(vel.x, vel.y);
-    var want = speed > 12 ? Math.atan2(vel.x, -vel.y) * Math.min(1, speed / 160) : 0;
-    want = Math.max(-1.1, Math.min(1.1, want));
-    angle += (want - angle) * Math.min(1, dt * 3);
+    // stays upright — only the faintest sway with the water, never turns its head
+    var want = Math.max(-0.08, Math.min(0.08, vel.x / 900)) + Math.sin(t * 0.6) * 0.025;
+    angle += (want - angle) * Math.min(1, dt * 0.9);
 
-    // tentacles trail behind the motion (expressed in the jelly's own frame)
-    var ca = Math.cos(-angle), sa = Math.sin(-angle);
-    var lvx = vel.x * ca - vel.y * sa, lvy = vel.x * sa + vel.y * ca;
-    var trailX = -lvx * 0.09, trailY = Math.max(-30, -lvy * 0.05);
+    // tentacles stream behind the motion
+    var trailX = -vel.x * 0.14, trailY = Math.max(-26, Math.min(18, -vel.y * 0.08));
 
     bell.setAttribute("transform", "translate(60 34) scale(" + (1 - pulse * 0.13).toFixed(3) + " " + (1 + pulse * 0.07).toFixed(3) + ") translate(-60 -34)");
     var rootY = 58 - pulse * 3;

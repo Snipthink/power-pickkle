@@ -63,7 +63,7 @@ window.PP_CONFIG = {
   contact: {
     email: "",  // TODO: add support email
     phone: "",  // TODO: add phone (display format)
-    instagram: "",
+    instagram: "https://www.instagram.com/powerpickkle/", // Instagram page (icon in header + footer)
     facebook: ""
   },
 

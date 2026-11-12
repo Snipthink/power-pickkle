@@ -29,7 +29,7 @@
   --royal: "Cinzel", "Trajan Pro", Georgia, serif;
   --body: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
   --gold-grad: linear-gradient(135deg, #f7d774 0%, #c8941e 45%, #e9bd52 70%, #9c6b10 100%);
-  --header-h: 78px;
+  --header-h: 92px;
   color-scheme: light;
 }
 
@@ -80,7 +80,18 @@ button { font: inherit; cursor: pointer; }
 .site-header { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); transition: box-shadow .25s; }
 .site-header.scrolled { box-shadow: 0 6px 24px -14px rgba(90, 50, 5, .4); }
 .header-in { height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.logo img { height: 58px; width: auto; }
+.logo { display: block; flex: none; }
+.logo img { height: 76px; width: auto; filter: drop-shadow(0 1px 0 rgba(120, 70, 0, .35)) drop-shadow(0 2px 6px rgba(120, 70, 0, .18)); image-rendering: auto; }
+.nav-insta { display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; margin-left: 6px; color: #fff; text-decoration: none; background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); box-shadow: 0 6px 14px -6px rgba(214, 36, 159, .6); transition: transform .2s; }
+.nav-insta:hover { transform: translateY(-2px) scale(1.05); }
+.nav-insta svg { width: 22px; height: 22px; }
+.nav-insta span { display: none; }
+.nav a.nav-insta::after { display: none; }
+.nav-insta[hidden], .insta-link[hidden] { display: none !important; }
+.insta-link { display: flex !important; align-items: center; gap: 12px; margin: 4px 0 10px; text-decoration: none; line-height: 1.3; }
+.insta-link b { color: #d6249f; }
+.insta-ic { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: #fff; background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+.insta-ic svg { width: 22px; height: 22px; }
 .nav { display: flex; align-items: center; gap: 4px; }
 .nav a { text-decoration: none; font-weight: 500; font-size: .86rem; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; border-radius: 999px; color: var(--ink); position: relative; }
 .nav a:not(.btn)::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 2px; background: var(--gold); transform: scaleX(0); transition: transform .25s; }
@@ -402,8 +413,10 @@ button { font: inherit; cursor: pointer; }
   .pair-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 960px) {
-  :root { --header-h: 68px; }
-  .logo img { height: 48px; }
+  :root { --header-h: 76px; }
+  .logo img { height: 60px; }
+  .nav a.nav-insta { display: flex; width: auto; height: auto; margin: 14px 0 0; border-radius: 999px; padding: 14px; gap: 10px; justify-content: center; font-size: 1rem; border: 0; }
+  .nav-insta span { display: inline; text-transform: none; letter-spacing: 0; font-weight: 600; }
   .burger { display: block; z-index: 2; }
   .nav { position: fixed; inset: var(--header-h) 0 0 0; background: #fff; flex-direction: column; align-items: stretch; padding: 20px 16px 40px; gap: 2px; transform: translateY(-12px); opacity: 0; pointer-events: none; transition: transform .3s cubic-bezier(.2,.7,.2,1), opacity .25s, visibility 0s .3s; overflow-y: auto; visibility: hidden; }
   .nav.open { transform: none; opacity: 1; pointer-events: auto; visibility: visible; transition-delay: 0s; }
