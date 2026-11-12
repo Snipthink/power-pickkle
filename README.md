@@ -17,7 +17,7 @@ nutrition (per 100 g — per 35 g is calculated), ingredients, allergens, manufa
 - [ ] Replace placeholder photos in `assets/img/` (cropped from the design mockup) with real photography — especially real product shots of the black tub.
 - [ ] Review `policies.html` draft text.
 - [ ] Confirm brand-story and flavour copy (index.html #story, #flavour) reads true for your business.
-- [ ] Set `<link rel="canonical">` / `brand.siteUrl` to the live URL.
+- [x] Live at https://snipthink.github.io/power-pickkle/ (GitHub Pages, branch `main`, root).
 
 ## Packaging illustration
 `js/tub.js` draws the actual pack format — black tapered tub, wide at the top, lid with round brand sticker — using the real logo (`assets/img/logo.png`). Use `data-tub="closed|open|lid"` on any element.

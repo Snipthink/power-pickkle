@@ -12,7 +12,7 @@ window.PP_CONFIG = {
   brand: {
     name: "Power Pickkle",
     tagline: "Instant Energy in Every Bite!", // registered tagline — used only as the brand line
-    siteUrl: "https://example.github.io/power-pickkle/", // TODO: set final URL (used for SEO/share)
+    siteUrl: "https://snipthink.github.io/power-pickkle/", // live GitHub Pages address
     year: 2026
   },
 

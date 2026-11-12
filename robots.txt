@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://snipthink.github.io/power-pickkle/sitemap.xml
