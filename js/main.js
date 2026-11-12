@@ -50,7 +50,7 @@
   // SEO: Product structured data from config
   var ld = document.createElement("script"); ld.type = "application/ld+json";
   ld.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Power Pickkle – Boneless Fish Cubes Pickle",
-    brand: { "@type": "Brand", name: C.brand.name }, description: p.category + " with paneer-like fish cubes in traditional Indian masala.",
+    brand: { "@type": "Brand", name: C.brand.name }, description: p.category + " – boneless fish cubes in traditional Indian masala.",
     offers: { "@type": "Offer", priceCurrency: "INR", price: String(o.price), description: o.title + " – " + o.tubs + " × " + p.netWeightG + "g" } });
   document.head.appendChild(ld);
 
